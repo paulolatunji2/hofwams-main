@@ -1,0 +1,329 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String
+  email         String        @unique
+  emailVerified DateTime?
+  image         String?
+  organizer     Organizer?
+  chef          ChefProfile?
+  admin         AdminProfile?
+  role          UserRole?
+  chefType      ChefType?
+  account       Account[]
+  session       Session[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("users")
+}
+
+model AdminProfile {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @unique
+  type      AdminType
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("admin_profiles")
+}
+
+model Account {
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@id([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  sessionToken String   @unique
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Organizer {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  events    Event[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("organizers")
+}
+
+model Event {
+  id                    String        @id @default(cuid())
+  name                  String
+  description           String
+  maxNumberOfGuests     Int
+  allowExtraGuest       Boolean
+  maxNumberOfExtraGuest Int?
+  availableSlot         Int?
+  slotTaken             Int           @default(0)
+  allowMinor            Boolean
+  meals                 Meal[]        @relation("EventMeals")
+  drinks                Drink[]       @relation("EventDrinks")
+  organizer             Organizer     @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  organizerId           String
+  guests                Guest[]
+  mealPlan              MealPlan[]
+  mealTimeType          EventTimeType
+  date                  DateTime
+  location              String
+  link                  String?       @unique
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@map("events")
+}
+
+model Guest {
+  id              String    @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String    @unique
+  phoneNumber     String
+  age             Int
+  nationality     String
+  comingWithExtra Boolean?  @default(false)
+  numberOfExtra   Int?
+  numberOfAdults  Int?      @default(0)
+  numberOfMinors  Int?      @default(0)
+  extraType       String?
+  preferredDishes Meal[]    @relation("GuestMeals")
+  preferredDrinks Drink[]   @relation("GuestDrinks")
+  dietary         Dietary
+  allergies       Allergy[] @relation("GuestAllergies")
+  mealSize        MealSize
+  event           Event     @relation(fields: [eventId], references: [id])
+  eventId         String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("guests")
+}
+
+model Allergy {
+  id    String  @id @default(cuid())
+  name  String  @unique
+  guest Guest[] @relation("GuestAllergies")
+}
+
+model ChefProfile {
+  id          String      @id @default(cuid())
+  role        ChefType
+  specialty   String
+  nationality String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String      @unique
+  cuisines    Cuisine[]   @relation("ChefCuisines")
+  mealPlan    MealPlan[]  @relation("MealPlanChefs")
+  department  Department?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("chefs")
+}
+
+model Cuisine {
+  id        String        @id @default(cuid())
+  name      String        @unique
+  chefs     ChefProfile[] @relation("ChefCuisines")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("cuisines")
+}
+
+model Meal {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  type      String
+  events    Event[]  @relation("EventMeals")
+  guest     Guest[]  @relation("GuestMeals")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("meals")
+}
+
+model Drink {
+  id     String    @id @default(cuid())
+  name   String    @unique
+  type   DrinkType
+  events Event[]   @relation("EventDrinks")
+  guest  Guest[]   @relation("GuestDrinks")
+
+  @@map("drinks")
+}
+
+model MealPlan {
+  id              String                @id @default(cuid())
+  name            String
+  description     String?
+  note            String?
+  event           Event                 @relation(fields: [eventId], references: [id])
+  eventId         String
+  chef            ChefProfile[]         @relation("MealPlanChefs")
+  ingredient      IngredientInventory[]
+  ingredientUsage IngredientUsage[]
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@map("meal_plans")
+}
+
+model IngredientInventory {
+  id                String            @id @default(cuid())
+  name              String            @unique
+  shelfLife         Int // Number of days the ingredient is expected to last
+  shelfLifeUnit     ShelfLifeUnit
+  expiryDate        DateTime // Expiry date of the ingredient
+  availableQuantity Int // Quantity available in stock
+  unit              Unit // Unit of measurement (e.g., kg, liters)
+  ingredientUsage   IngredientUsage[]
+  mealPlanning      MealPlan[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@map("ingredient_inventories")
+}
+
+model IngredientUsage {
+  id               String              @id @default(cuid())
+  ingredient       IngredientInventory @relation(fields: [ingredientName], references: [name])
+  ingredientName   String
+  assignedQuantity Int
+  quantityUsed     Int? // Quantity of the ingredient used in this meal
+  unit             Unit
+  mealPlan         MealPlan            @relation(fields: [mealPlanId], references: [id])
+  mealPlanId       String
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@map("ingredient_usages")
+}
+
+enum UserRole {
+  ADMIN
+  CHEF
+}
+
+enum EventTimeType {
+  BREAKFAST
+  LUNCH
+  DINNER
+}
+
+enum ChefType {
+  EXECUTIVE_CHEF
+  EXECUTIVE_SOUS_CHEF
+  SOUS_CHEF
+  CHEF_DE_PARTIE
+  DEMI_ChHEF_DE_PARTIE
+  COMMI_1
+  COMMI_2
+}
+
+enum Department {
+  HOT_KITCHEN
+  COLD_KITCHEN
+  PASTERY
+  BAKERY
+}
+
+enum AdminType {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum MealSize {
+  SMALL_SIZE
+  SMALL_SIZE_PLUS_TAKE_AWAY
+  REGULAR_SIZE
+  REGULAR_SIZE_PLUS_TAKE_AWAY
+  LARGE_SIZE
+  LARGE_SIZE_PLUS_TAKE_AWAY
+}
+
+enum DrinkType {
+  ALCOHOLIC
+  NON_ALCOHOLIC
+}
+
+enum ShelfLifeUnit {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+enum Unit {
+  KG
+  L
+}
+
+enum Dietary {
+  VEGETARIAN
+  VEGAN
+  GLUTEN_FREE
+  LACTOSE_FREE
+  DAIRY_FREE
+  NUT_FREE
+  PESCATARIAN
+  PALEO
+  KETO
+  HALAL
+  KOSHER
+  LOW_CARB
+  LOW_SODIUM
+  LOW_FAT
+  MEDITERRANEAN
+  INTERMITTENT_FASTING
+  FODMAP
+}
