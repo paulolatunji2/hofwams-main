@@ -36,3 +36,11 @@ export const assignDepartmentSchema = z.object({
 });
 
 export type AssignDepartmentValues = z.infer<typeof assignDepartmentSchema>;
+
+export const createMeasuringUnitSchema = z.object({
+  name: requiredString,
+});
+
+export type CreateMeasuringUnitValues = z.infer<
+  typeof createMeasuringUnitSchema
+>;

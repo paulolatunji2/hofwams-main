@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { Dietary, DrinkType, EventTimeType, MealSize } from "@prisma/client";
+import {
+  Dietary,
+  EventTimeType,
+  MealSize,
+  ShelfLifeUnit,
+} from "@prisma/client";
 import { requiredString } from "./auth";
 
 export const eventSchema = z
@@ -40,17 +45,50 @@ export type EventValues = z.infer<typeof eventSchema>;
 
 export const mealSchema = z.object({
   name: requiredString,
-  type: requiredString,
+  category: requiredString,
 });
 
 export type MealValues = z.infer<typeof mealSchema>;
 
+export const updateMealSchema = z.object({
+  name: z.string().optional(),
+  category: z.string().optional(),
+  shelfLife: z.coerce.number().positive().optional(),
+  quantity: z.coerce.number().optional(),
+  shelfLifeUnit: z.nativeEnum(ShelfLifeUnit).optional(),
+  measuringUnitName: z.string().optional(),
+});
+
+export type UpdateMealValues = z.infer<typeof updateMealSchema>;
+
+export const mealCategorySchema = z.object({
+  name: requiredString,
+});
+
+export type MealCategoryValues = z.infer<typeof mealCategorySchema>;
+
 export const drinkSchema = z.object({
   name: requiredString,
-  type: z.nativeEnum(DrinkType),
+  category: requiredString,
 });
 
 export type DrinkValues = z.infer<typeof drinkSchema>;
+
+export const updateDrinkSchema = z.object({
+  name: z.string().optional(),
+  category: z.string().optional(),
+  expiryDate: z.coerce.date().optional(),
+  quantity: z.coerce.number().optional(),
+  measuringUnitName: z.string().optional(),
+});
+
+export type UpdateDrinkValues = z.infer<typeof updateDrinkSchema>;
+
+export const drinkCategorySchema = z.object({
+  name: requiredString,
+});
+
+export type DrinkCategoryValues = z.infer<typeof drinkCategorySchema>;
 
 export const updateEventSchema = z.object({
   name: z.string().optional(),

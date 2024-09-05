@@ -1,3 +1,4 @@
+import { Drink, Meal } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 export async function saltAndHashPassword(password: string): Promise<string> {
@@ -15,7 +16,7 @@ export const getInitials = (fullName: string) => {
 };
 
 export const extractMenuName = (
-  menuArr: { name: string; type: string }[]
+  menuArr: Drink[] | Meal[]
 ) => {
   if (!menuArr) return [];
   return menuArr?.map((item) => item.name);

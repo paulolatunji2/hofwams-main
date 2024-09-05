@@ -1,15 +1,14 @@
 import { z } from "zod";
-import { ShelfLifeUnit, Unit } from "@prisma/client";
+import { ShelfLifeUnit } from "@prisma/client";
 
 import { requiredString } from "./auth";
 
 export const ingredientInventorySchema = z.object({
   name: requiredString,
-  shelfLife: z.coerce.number().int().positive(),
-  shelfLifeUnit: z.nativeEnum(ShelfLifeUnit),
+  purchaseDate: z.coerce.date(),
   expiryDate: z.coerce.date(),
   availableQuantity: z.coerce.number().int().positive(),
-  unit: z.nativeEnum(Unit),
+  unit: requiredString,
 });
 
 export type IngredientInventoryValues = z.infer<
@@ -22,7 +21,7 @@ export const updateIngredientInventorySchema = z.object({
   shelfLifeUnit: z.nativeEnum(ShelfLifeUnit).optional(),
   expiryDate: z.coerce.date().optional(),
   availableQuantity: z.coerce.number().int().positive().optional(),
-  unit: z.nativeEnum(Unit).optional(),
+  unit: z.string().optional(),
 });
 
 export type UpdateIngredientInventoryValues = z.infer<

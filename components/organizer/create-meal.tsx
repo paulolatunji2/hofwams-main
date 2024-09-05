@@ -9,14 +9,18 @@ import { createMeal } from "@/actions/event-actions";
 import { mealSchema, MealValues } from "@/schema/event";
 import { CreateMealOrDrinkDialog } from "./create-meal-dialog";
 
-export const CreateMeal = () => {
+export const CreateMeal = ({
+  mealCategoryOptions,
+}: {
+  mealCategoryOptions: string[];
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<MealValues>({
     resolver: zodResolver(mealSchema),
     defaultValues: {
       name: "",
-      type: "",
+      category: "",
     },
   });
 
@@ -43,6 +47,7 @@ export const CreateMeal = () => {
       isLoading={isLoading}
       onSubmit={onSubmit}
       categoryType="Meal"
+      selectItems={mealCategoryOptions}
     />
   );
 };

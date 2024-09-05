@@ -14,10 +14,7 @@ const AdminProfilePage = async () => {
   }
 
   return (
-    <main
-      className="text-emerald-950 dark:text-emerald-50 overflow-y-auto"
-      style={{ height: "calc(100vh - 200px)" }}
-    >
+    <main className="text-emerald-950 dark:text-emerald-50">
       <BioData />
     </main>
   );

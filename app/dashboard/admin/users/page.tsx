@@ -16,7 +16,7 @@ const UsersPage = async () => {
   }
 
   const users = await getAllUsers();
-  
+
   return (
     <main className="text-emerald-950 dark:text-emerald-50">
       <h1 className="text-4xl mb-10 font-bold">All Users</h1>

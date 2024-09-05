@@ -89,6 +89,25 @@ export const columns: ColumnDef<UserResponseType>[] = [
       return value.includes(row.getValue(id));
     },
   },
+
+  {
+    accessorKey: "chefType",
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Chef Type" />;
+    },
+    cell: ({ row }) => {
+      const { chefType } = row.original;
+      return (
+        <div className="font-medium text-center">{chefType || "N/A"}</div>
+      );
+    },
+    footer: ({ column, table }) => {
+      return <DataTableColumnFooter column={column} table={table} />;
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
   {
     accessorKey: "createdAt",
     header: ({ column }) => {

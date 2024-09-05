@@ -23,6 +23,8 @@ import { EventResponseType } from "@/types";
 interface CreateOrEditEventFormProps {
   meals: string[];
   drinks: string[];
+  mealCategoryOptions: string[];
+  drinkCategoryOptions: string[];
   eventInfo?: EventResponseType;
 }
 
@@ -30,6 +32,8 @@ export const CreateOrEditEventForm = ({
   meals,
   drinks,
   eventInfo,
+  mealCategoryOptions,
+  drinkCategoryOptions,
 }: CreateOrEditEventFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -117,7 +121,7 @@ export const CreateOrEditEventForm = ({
         {allowExtraGuest && (
           <CustomFormField
             name="maxNumberOfExtraGuest"
-            label="Max Number of Extra Guests"
+            label="Allowable Extra Guests"
             type="number"
             form={form}
           />
@@ -134,16 +138,16 @@ export const CreateOrEditEventForm = ({
           options={meals}
           name="meals"
           form={form}
-          createMenu={<CreateMeal />}
-          label="Meals"
+          createMenu={<CreateMeal mealCategoryOptions={mealCategoryOptions} />}
+          label="Meal"
         />
 
         <MultiSelectField
           options={drinks}
           name="drinks"
           form={form}
-          createMenu={<CreateDrink />}
-          label="Drinks"
+          createMenu={<CreateDrink drinksCategories={drinkCategoryOptions} />}
+          label="Drink"
         />
 
         <CustomFormField

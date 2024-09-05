@@ -33,10 +33,7 @@ const UpcomingEventsPage = async () => {
   }
 
   return (
-    <main
-      className="text-emerald-950 dark:text-emerald-50 overflow-y-auto"
-      style={{ height: "calc(100vh - 200px)" }}
-    >
+    <main className="text-emerald-950 dark:text-emerald-50">
       <h1 className="text-4xl mb-10 font-bold">Upcoming Events</h1>
       <EventsComp
         events={events.data as EventResponseType[]}

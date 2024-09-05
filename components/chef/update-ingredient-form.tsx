@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IngredientInventory, ShelfLifeUnit, Unit } from "@prisma/client";
+import { IngredientInventory, ShelfLifeUnit } from "@prisma/client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -10,6 +10,8 @@ import { Form } from "@/components/ui/form";
 import { CustomFormField } from "@/components/gen/custom-form-field";
 import { CustomDateField } from "@/components/gen/custom-date-field";
 import { LoadingButton } from "@/components/gen/loading-button";
+import { ComboboxForm } from "@/components/gen/combobox-form";
+import { CreateMeasuringUnitDialog } from "./create-measuring-unit";
 
 import {
   ingredientInventorySchema,
@@ -24,12 +26,14 @@ interface Props {
   ingredient?: IngredientInventory;
   type: "create" | "update";
   setIsOpen?: (isOpen: boolean) => void;
+  units?: string[];
 }
 
 export const CreateOrUpdateIngredientForm = ({
   ingredient,
   type,
   setIsOpen,
+  units,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,11 +41,10 @@ export const CreateOrUpdateIngredientForm = ({
     resolver: zodResolver(ingredientInventorySchema),
     defaultValues: {
       name: ingredient?.name || "",
-      shelfLife: ingredient?.shelfLife || 0,
-      shelfLifeUnit: ingredient?.shelfLifeUnit || ShelfLifeUnit.DAY,
+      purchaseDate: ingredient?.purchaseDate || new Date(),
       expiryDate: ingredient?.expiryDate || new Date(),
       availableQuantity: ingredient?.availableQuantity || 0,
-      unit: ingredient?.unit || Unit.KG,
+      unit: ingredient?.measuringUnitName || "",
     },
   });
 
@@ -84,7 +87,12 @@ export const CreateOrUpdateIngredientForm = ({
           name="shelfLifeUnit"
           label={"Shelf Life Unit"}
           type="select"
-          selectItems={[ShelfLifeUnit.DAY, ShelfLifeUnit.WEEK, ShelfLifeUnit.MONTH, ShelfLifeUnit.YEAR]}
+          selectItems={[
+            ShelfLifeUnit.DAY,
+            ShelfLifeUnit.WEEK,
+            ShelfLifeUnit.MONTH,
+            ShelfLifeUnit.YEAR,
+          ]}
         />
         <CustomDateField form={form} name="expiryDate" label={"Expiry Date"} />
 
@@ -95,12 +103,12 @@ export const CreateOrUpdateIngredientForm = ({
           type="number"
         />
 
-        <CustomFormField
+        <ComboboxForm
           form={form}
           name="unit"
           label={"Unit"}
-          type="select"
-          selectItems={[Unit.KG, Unit.L]}
+          createOption={<CreateMeasuringUnitDialog />}
+          options={units || []}
         />
 
         <LoadingButton isLoading={isLoading} type="submit">

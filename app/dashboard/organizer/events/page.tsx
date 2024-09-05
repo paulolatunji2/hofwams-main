@@ -37,7 +37,7 @@ const AllEventsPage = async () => {
       <EventsComp
         events={events.data as EventResponseType[]}
         eventDetailsRoute="/dashboard/organizer/event"
-        createEventRoute="/dashboard/organizer/event/create"
+        createEventRoute="/dashboard/organizer/create-event"
       />
     </main>
   );

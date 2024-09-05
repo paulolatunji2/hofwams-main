@@ -68,21 +68,18 @@ export const inventoryColumns: ColumnDef<IngredientInventory>[] = [
       return <DataTableColumnFooter column={column} table={table} />;
     },
   },
+
   {
-    accessorKey: "shelfLife",
-    header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Shelf Life" />;
+    accessorKey: "purchaseDate",
+    header: "Purchase Date",
+    cell: ({ row }) => {
+      const { purchaseDate } = row.original;
+      return (
+        <div className="font-medium text-left ">
+          {format(new Date(purchaseDate), "PPP p")}
+        </div>
+      );
     },
-    footer: ({ column, table }) => {
-      return <DataTableColumnFooter column={column} table={table} />;
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
-    accessorKey: "shelfLifeUnit",
-    header: "Shelf Life Unit",
     footer: ({ column, table }) => {
       return <DataTableColumnFooter column={column} table={table} />;
     },
@@ -105,7 +102,9 @@ export const inventoryColumns: ColumnDef<IngredientInventory>[] = [
   {
     accessorKey: "availableQuantity",
     header: ({ column }) => {
-      return <DataTableColumnHeader column={column} title="Available Quantity" />;
+      return (
+        <DataTableColumnHeader column={column} title="Available Quantity" />
+      );
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
@@ -115,7 +114,7 @@ export const inventoryColumns: ColumnDef<IngredientInventory>[] = [
     },
   },
   {
-    accessorKey: "unit",
+    accessorKey: "measuringUnitName",
     header: "Unit",
     footer: ({ column, table }) => {
       return <DataTableColumnFooter column={column} table={table} />;

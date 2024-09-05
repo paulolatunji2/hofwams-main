@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DrinkType } from "@prisma/client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -10,14 +9,18 @@ import { createDrink } from "@/actions/event-actions";
 import { drinkSchema, DrinkValues } from "@/schema/event";
 import { CreateMealOrDrinkDialog } from "./create-meal-dialog";
 
-export const CreateDrink = () => {
+export const CreateDrink = ({
+  drinksCategories,
+}: {
+  drinksCategories: string[];
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<DrinkValues>({
     resolver: zodResolver(drinkSchema),
     defaultValues: {
       name: "",
-      type: DrinkType.NON_ALCOHOLIC,
+      category: "",
     },
   });
 
@@ -33,7 +36,7 @@ export const CreateDrink = () => {
       }
     } catch (error) {
       console.log({ error });
-      toast.error("An error occurred while creating the meal.");
+      toast.error("An error occurred while creating the drink.");
     } finally {
       setIsLoading(false);
     }
@@ -45,9 +48,7 @@ export const CreateDrink = () => {
       isLoading={isLoading}
       onSubmit={onSubmit}
       categoryType="Drink"
-      type="select"
-      selectItems={["NON_ALCOHOLIC", "ALCOHOLIC"]}
-      placeholder="Select drink type"
+      selectItems={drinksCategories}
     />
   );
 };

@@ -164,7 +164,7 @@ export async function createMealPlanForEvent(
             ingredientName: ingredientInventory.name,
             assignedQuantity: assignment.assignedQuantity,
             mealPlanId: mealPlan.id,
-            unit: ingredientInventory.unit,
+            measuringUnitName: ingredientInventory.measuringUnitName,
           },
         });
       }
@@ -213,7 +213,7 @@ export const getMealPlanByEvent = async (
             mealPlanId: true,
             ingredientName: true,
             assignedQuantity: true,
-            unit: true,
+            measuringUnitName: true,
             quantityUsed: true,
           },
         },
@@ -231,7 +231,7 @@ export const getMealPlanByEvent = async (
       ingredientUsage: mealPlan.ingredientUsage.map((usage) => ({
         ingredientName: usage.ingredientName,
         assignedQuantity: usage.assignedQuantity,
-        unit: usage.unit,
+        unit: usage.measuringUnitName,
         quantityUsed: usage.quantityUsed,
         mealPlanId: usage.mealPlanId,
         mealPlanName: mealPlan.name,

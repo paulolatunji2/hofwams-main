@@ -26,7 +26,7 @@ export const createIngredientInventory = async (
     if (!checkUserAuthorization(role as UserRole))
       throw new Error("Not authorized.");
 
-    const { name, ...rest } = ingredientInventorySchema.parse(values);
+    const { name, unit, ...rest } = ingredientInventorySchema.parse(values);
 
     const existingIngredient = await prisma.ingredientInventory.findFirst({
       where: {
@@ -42,7 +42,7 @@ export const createIngredientInventory = async (
     }
 
     const ingredientInventory = await prisma.ingredientInventory.create({
-      data: { name, ...rest },
+      data: { name, measuringUnitName: unit, ...rest },
     });
 
     revalidatePath("/dashboard/chef/inventory");

@@ -21,6 +21,7 @@ export const registerForEvent = async (
       email,
       age,
       phoneNumber,
+      comingWithExtra,
       extraType,
       numberOfExtra,
       numberOfAdults,
@@ -40,8 +41,18 @@ export const registerForEvent = async (
       },
     });
 
-    if (!event) {
-      return { error: "Event not found." };
+    if (!event || new Date(event.date) < new Date()) {
+      return { error: "Event not found or has expired." };
+    }
+
+    const numOfExtras = numberOfExtra ?? 0;
+    const numOfAdults = numberOfAdults ?? 0;
+    const numOfMinors = numberOfMinors ?? 0;
+
+    if (extraType?.length === 2 && numOfExtras < 2) {
+      return {
+        error: "Number of extra is less than number of extra type selected!",
+      };
     }
 
     // Check if the guest has already registered for the event
@@ -77,14 +88,11 @@ export const registerForEvent = async (
     }
 
     // Check if the event allows extra guests and validate the limits
-    const numOfExtras = numberOfExtra ?? 0;
-    const numOfAdults = numberOfAdults ?? 0;
-    const numOfMinors = numberOfMinors ?? 0;
 
     if (numOfAdults + numOfMinors > numOfExtras)
       return { error: "Invalid number of guests." };
 
-    const totalGuest = numOfExtras + 1;
+    const totalGuest = comingWithExtra ? numOfExtras + 1 : 1;
 
     if (allowExtraGuest) {
       if (

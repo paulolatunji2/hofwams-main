@@ -39,10 +39,7 @@ const EventDetailsPage = async ({
   const eventGuests = await getAllEventGuest(params.eventId);
 
   return (
-    <main
-      className="overflow-y-auto max-w-7xl mx-auto text-emerald-950 dark:text-emerald-50"
-      style={{ height: "calc(100vh - 200px)" }}
-    >
+    <main className="max-w-7xl mx-auto text-emerald-950 dark:text-emerald-50">
       <h1 className="text-4xl mb-10 font-bold shadow py-2">Event Details</h1>
 
       <div className="grid grid-cols-2 shadow-xl rounded-md my-8">
@@ -118,7 +115,7 @@ const EventDetailsPage = async ({
         </div>
       </div>
 
-      <div className="shadow-lg rounded-md my-8 px-4">
+      <div className="shadow-lg rounded-md my-8 p-4">
         <h2 className="text-3xl mb-10 font-bold shadow py-2">Meal Plan</h2>
         {mealPlans?.data && (
           <DataTable
@@ -130,7 +127,7 @@ const EventDetailsPage = async ({
         )}
       </div>
 
-      <div className="shadow-lg rounded-md my-8 px-4">
+      <div className="shadow-lg rounded-md my-8 p-4">
         <h2 className="text-3xl mb-10 font-bold shadow py-2">Guests</h2>
         {eventGuests?.data && (
           <DataTable

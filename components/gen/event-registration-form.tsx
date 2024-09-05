@@ -2,7 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dietary, MealSize } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Form } from "@/components/ui/form";
 import { CustomFormField } from "@/components/gen/custom-form-field";
@@ -16,8 +19,6 @@ import {
 } from "@/schema/event";
 import { EventResponseType } from "@/types";
 import { registerForEvent } from "@/actions/guest-actions";
-import { toast } from "sonner";
-import { useState } from "react";
 
 export const EventRegistrationForm = ({
   eventInfo,
@@ -29,6 +30,8 @@ export const EventRegistrationForm = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const { id, name, allowExtraGuest, allowMinor } = eventInfo;
+
+  const router = useRouter();
 
   const form = useForm<EventRegistrationValues>({
     resolver: zodResolver(eventRegistrationSchema),
@@ -43,7 +46,7 @@ export const EventRegistrationForm = ({
       numberOfExtra: 1,
       numberOfAdults: 1,
       numberOfMinors: 0,
-      extraType: null,
+      extraType: ["ADULT"],
       preferredDishes: [],
       preferredDrinks: [],
       dietary: Dietary.VEGAN,
@@ -61,6 +64,7 @@ export const EventRegistrationForm = ({
           `Congratulations, you have successfully registered for ${name} 🎊!`
         );
         form.reset();
+        router.push("/");
       } else if (response.error) {
         toast.error(response.error as string);
       }
@@ -75,21 +79,49 @@ export const EventRegistrationForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <CustomFormField name="firstName" label="First Name" form={form} />
-
-        <CustomFormField name="lastName" label="Last Name" form={form} />
-
-        <CustomFormField name="email" label="Email" form={form} type="email" />
+        <CustomFormField
+          compulsory
+          name="firstName"
+          label="First Name"
+          form={form}
+        />
 
         <CustomFormField
+          compulsory
+          name="lastName"
+          label="Last Name"
+          form={form}
+        />
+
+        <CustomFormField
+          compulsory
+          name="email"
+          label="Email"
+          form={form}
+          type="email"
+        />
+
+        <CustomFormField
+          compulsory
           form={form}
           name="phoneNumber"
           label="Phone Number"
           type="tel"
         />
-        <CustomFormField name="age" label="Age" form={form} type="number" />
+        <CustomFormField
+          compulsory
+          name="age"
+          label="Age"
+          form={form}
+          type="number"
+        />
 
-        <CustomFormField name="nationality" label="Nationality" form={form} />
+        <CustomFormField
+          compulsory
+          name="nationality"
+          label="Nationality"
+          form={form}
+        />
 
         {allowExtraGuest && (
           <CustomFormField
@@ -151,6 +183,7 @@ export const EventRegistrationForm = ({
         />
 
         <CustomFormField
+          compulsory
           name="dietary"
           label="Dietary Preferences"
           type="select"
@@ -186,6 +219,7 @@ export const EventRegistrationForm = ({
         />
 
         <CustomFormField
+          compulsory
           name="mealSize"
           label="Meal Size"
           type="select"

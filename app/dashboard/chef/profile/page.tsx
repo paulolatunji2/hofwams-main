@@ -24,10 +24,7 @@ const ChefProfilePage = async () => {
 
   if (!chefProfile.data) {
     return (
-      <main
-        className="text-emerald-950 dark:text-emerald-50 overflow-y-auto"
-        style={{ height: "calc(100vh - 200px)" }}
-      >
+      <main className="text-emerald-950 dark:text-emerald-50">
         <BioData />
         <div className="flex items-center justify-center my-10">
           <CreateOrUpdateChefProfile type="create" cuisines={cuisines.data} />
@@ -37,10 +34,7 @@ const ChefProfilePage = async () => {
   }
 
   return (
-    <main
-      className="text-emerald-950 dark:text-emerald-50 overflow-y-auto"
-      style={{ height: "calc(100vh - 200px)" }}
-    >
+    <main className="text-emerald-950 dark:text-emerald-50">
       <BioData />
       <ChefProfile data={chefProfile.data} cuisines={cuisines.data} />
     </main>

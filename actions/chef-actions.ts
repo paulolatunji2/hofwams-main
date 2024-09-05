@@ -9,6 +9,8 @@ import { ResponseType } from "./user-actions";
 import {
   CreateChefProfileValues,
   CreateCuisineValues,
+  createMeasuringUnitSchema,
+  CreateMeasuringUnitValues,
   UpdateChefProfileValues,
   UpdateCuisineValues,
 } from "@/schema/chef";
@@ -561,6 +563,76 @@ export const updateCuisine = async (
     console.error("Update cuisine error:", error);
     return {
       error: "An error occurred while updating the cuisine. Please try again.",
+    };
+  }
+};
+
+export const createMeasuringUnit = async (
+  value: CreateMeasuringUnitValues
+): Promise<ResponseType> => {
+  try {
+    const session = await auth();
+    const { id: userId, role } = session?.user || {};
+
+    if (!userId || !role) {
+      throw new Error("Not authenticated.");
+    }
+
+    const { name } = createMeasuringUnitSchema.parse(value);
+
+    const existingMeasuringUnit = await prisma.measuringUnit.findFirst({
+      where: {
+        name: {
+          mode: "insensitive",
+          equals: name,
+        },
+      },
+    });
+
+    if (existingMeasuringUnit) {
+      return { error: `${name} unit already exists.` };
+    }
+
+    await prisma.measuringUnit.create({
+      data: {
+        name,
+      },
+    });
+
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    console.log({ error });
+    return {
+      error:
+        "An error occurred while creating the measuring unit. Please try again.",
+    };
+  }
+};
+
+export const getAllUnits = async (): Promise<ResponseType<string[]>> => {
+  try {
+    const session = await auth();
+    const { id: userId, role } = session?.user || {};
+    if (!userId || !role) {
+      throw new Error("Not authenticated.");
+    }
+
+    const units = await prisma.measuringUnit.findMany({
+      orderBy: { name: "asc" },
+    });
+
+    if (units.length === 0) {
+      return { data: [], error: "No units found." };
+    }
+    const formattedUnits = units.map((unit) => unit.name);
+
+    return { success: true, data: formattedUnits };
+  } catch (error) {
+    console.error("Get units error:", error);
+    return {
+      error: "An error occurred while fetching units. Please try again later.",
     };
   }
 };

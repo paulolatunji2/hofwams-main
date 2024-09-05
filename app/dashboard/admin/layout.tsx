@@ -4,7 +4,8 @@ import {
   LayoutDashboard,
   User2,
 } from "lucide-react";
-import { MdOutlineInventory } from "react-icons/md";
+import { MdFoodBank, MdOutlineInventory } from "react-icons/md";
+import { RiDrinks2Fill } from "react-icons/ri";
 
 import { AppSideBar } from "@/components/gen/app-sidebar";
 import { Header } from "@/components/gen/header";
@@ -39,17 +40,31 @@ const links = [
     ),
   },
   {
-    label: "Inventory",
-    href: "/dashboard/admin/inventory",
+    label: "Ingredient Inventory",
+    href: "/dashboard/admin/ingredient-inventory",
     icon: (
       <MdOutlineInventory className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+    ),
+  },
+  {
+    label: "Meal Inventory",
+    href: "/dashboard/admin/meal-inventory",
+    icon: (
+      <MdFoodBank className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+    ),
+  },
+  {
+    label: "Drink Inventory",
+    href: "/dashboard/admin/drink-inventory",
+    icon: (
+      <RiDrinks2Fill className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
   },
 ];
 
 const AdminDashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
+    <>
       <Header />
       <AppSideBar links={links}>
         <div className="flex flex-1">
@@ -58,7 +73,7 @@ const AdminDashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </AppSideBar>
-    </div>
+    </>
   );
 };
 

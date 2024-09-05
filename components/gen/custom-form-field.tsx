@@ -25,6 +25,7 @@ interface CustomFormFieldProps {
   placeholder?: string;
   selectItems?: string[];
   readonly?: boolean;
+  compulsory?: boolean;
 }
 
 export const CustomFormField = ({
@@ -35,6 +36,7 @@ export const CustomFormField = ({
   placeholder,
   selectItems,
   readonly = false,
+  compulsory = false,
 }: CustomFormFieldProps) => {
   return (
     <FormField
@@ -44,7 +46,10 @@ export const CustomFormField = ({
         <FormItem>
           {type === "select" ? (
             <div className="space-y-2">
-              <FormLabel>{label}</FormLabel>
+              <div className="flex gap-1">
+                <FormLabel>{label}</FormLabel>
+                {compulsory && <span className="text-red-500">*</span>}
+              </div>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -64,7 +69,10 @@ export const CustomFormField = ({
             <div>
               {type === "checkbox" ? (
                 <div className="flex items-center gap-4">
-                  <FormLabel>{label}</FormLabel>
+                  <div className="flex gap-1">
+                    <FormLabel>{label}</FormLabel>
+                    {compulsory && <span className="text-red-500">*</span>}
+                  </div>
                   <FormControl>
                     <Switch
                       checked={field.value}
@@ -74,12 +82,20 @@ export const CustomFormField = ({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <FormLabel>{label}</FormLabel>
+                  <div className="flex gap-1">
+                    <FormLabel>{label}</FormLabel>
+                    {compulsory && <span className="text-red-500">*</span>}
+                  </div>
                   <FormControl>
                     {type === "textarea" ? (
                       <Textarea {...field} />
                     ) : (
-                      <Input readOnly={readonly} type={type} {...field} />
+                      <Input
+                        readOnly={readonly}
+                        type={type}
+                        min={0}
+                        {...field}
+                      />
                     )}
                   </FormControl>
                 </div>

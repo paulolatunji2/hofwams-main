@@ -181,25 +181,50 @@ model Cuisine {
 }
 
 model Meal {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  type      String
-  events    Event[]  @relation("EventMeals")
-  guest     Guest[]  @relation("GuestMeals")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String         @id @default(cuid())
+  name              String         @unique
+  type              MealCategory   @relation(fields: [mealCategoryName], references: [name])
+  mealCategoryName  String
+  shelfLife         Int?
+  quantity          Int?
+  shelfLifeUnit     ShelfLifeUnit?
+  measuringUnit     MeasuringUnit? @relation(fields: [measuringUnitName], references: [name])
+  measuringUnitName String?
+  events            Event[]        @relation("EventMeals")
+  guest             Guest[]        @relation("GuestMeals")
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
   @@map("meals")
 }
 
+model MealCategory {
+  name String @unique
+  meal Meal[]
+
+  @@map("meal_categories")
+}
+
 model Drink {
-  id     String    @id @default(cuid())
-  name   String    @unique
-  type   DrinkType
-  events Event[]   @relation("EventDrinks")
-  guest  Guest[]   @relation("GuestDrinks")
+  id                String         @id @default(cuid())
+  name              String         @unique
+  type              DrinkCategory  @relation(fields: [drinkCategoryName], references: [name])
+  drinkCategoryName String
+  events            Event[]        @relation("EventDrinks")
+  guest             Guest[]        @relation("GuestDrinks")
+  expiryDate        DateTime?
+  quantity          Int?
+  measuringUnit     MeasuringUnit? @relation(fields: [measuringUnitName], references: [name])
+  measuringUnitName String?
 
   @@map("drinks")
+}
+
+model DrinkCategory {
+  name  String  @unique
+  drink Drink[]
+
+  @@map("drink_categories")
 }
 
 model MealPlan {
@@ -221,11 +246,11 @@ model MealPlan {
 model IngredientInventory {
   id                String            @id @default(cuid())
   name              String            @unique
-  shelfLife         Int // Number of days the ingredient is expected to last
-  shelfLifeUnit     ShelfLifeUnit
-  expiryDate        DateTime // Expiry date of the ingredient
-  availableQuantity Int // Quantity available in stock
-  unit              Unit // Unit of measurement (e.g., kg, liters)
+  purchaseDate      DateTime
+  expiryDate        DateTime
+  availableQuantity Int
+  measuringUnit     MeasuringUnit     @relation(fields: [measuringUnitName], references: [name])
+  measuringUnitName String
   ingredientUsage   IngredientUsage[]
   mealPlanning      MealPlan[]
   createdAt         DateTime          @default(now())
@@ -234,17 +259,28 @@ model IngredientInventory {
   @@map("ingredient_inventories")
 }
 
+model MeasuringUnit {
+  name                String                @unique
+  IngredientInventory IngredientInventory[]
+  IngredientUsage     IngredientUsage[]
+  Drink               Drink[]
+  Meal                Meal[]
+
+  @@map("measuring_units")
+}
+
 model IngredientUsage {
-  id               String              @id @default(cuid())
-  ingredient       IngredientInventory @relation(fields: [ingredientName], references: [name])
-  ingredientName   String
-  assignedQuantity Int
-  quantityUsed     Int? // Quantity of the ingredient used in this meal
-  unit             Unit
-  mealPlan         MealPlan            @relation(fields: [mealPlanId], references: [id])
-  mealPlanId       String
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  id                String              @id @default(cuid())
+  ingredient        IngredientInventory @relation(fields: [ingredientName], references: [name])
+  ingredientName    String
+  assignedQuantity  Int
+  quantityUsed      Int?
+  measuringUnit     MeasuringUnit       @relation(fields: [measuringUnitName], references: [name])
+  measuringUnitName String
+  mealPlan          MealPlan            @relation(fields: [mealPlanId], references: [id])
+  mealPlanId        String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 
   @@map("ingredient_usages")
 }
@@ -291,21 +327,11 @@ enum MealSize {
   LARGE_SIZE_PLUS_TAKE_AWAY
 }
 
-enum DrinkType {
-  ALCOHOLIC
-  NON_ALCOHOLIC
-}
-
 enum ShelfLifeUnit {
   DAY
   WEEK
   MONTH
   YEAR
-}
-
-enum Unit {
-  KG
-  L
 }
 
 enum Dietary {

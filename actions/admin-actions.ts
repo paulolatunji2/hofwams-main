@@ -43,6 +43,7 @@ export const getAllUsers = async (): Promise<
         name: true,
         email: true,
         role: true,
+        chefType: true,
         createdAt: true,
         organizer: {
           select: {
@@ -71,6 +72,7 @@ export const getAllUsers = async (): Promise<
         id: user.id,
         name: user.name,
         email: user.email,
+        chefType: user.chefType,
         role: user.role ?? (user.organizer ? "ORGANIZER" : "USER"),
         createdAt: format(new Date(user.createdAt), "PPP p"),
       }));
@@ -104,6 +106,7 @@ export const getUser = async (
         name: true,
         email: true,
         role: true,
+        chefType: true,
         createdAt: true,
         organizer: {
           select: {
@@ -123,6 +126,7 @@ export const getUser = async (
       name: user.name,
       email: user.email,
       role: user.role ?? (user.organizer ? "ORGANIZER" : "USER"),
+      chefType: user.chefType,
       createdAt: format(new Date(user.createdAt), "PPP p"),
     };
 

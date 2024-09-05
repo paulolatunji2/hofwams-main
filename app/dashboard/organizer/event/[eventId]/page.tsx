@@ -33,10 +33,7 @@ const EventDetailsPage = async ({
   const eventGuests = await getAllEventGuest(params.eventId);
 
   return (
-    <main
-      className="overflow-y-auto max-w-7xl mx-auto text-emerald-950 dark:text-emerald-50"
-      style={{ height: "calc(100vh - 200px)" }}
-    >
+    <main className="max-w-7xl mx-auto text-emerald-950 dark:text-emerald-50">
       <h1 className="text-4xl mb-10 font-bold shadow py-2">Event Details</h1>
 
       <div className="grid grid-cols-2 shadow-xl rounded-md my-8">

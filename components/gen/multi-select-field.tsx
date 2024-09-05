@@ -33,7 +33,7 @@ export const MultiSelectField = ({
       name={name}
       render={({ field }) => (
         <FormItem className="w-full">
-          <FormLabel>{label} Category</FormLabel>
+          <FormLabel>{label}</FormLabel>
           <FormControl>
             <MultiSelect
               options={options}
@@ -46,9 +46,7 @@ export const MultiSelectField = ({
               createMenu={createMenu}
             />
           </FormControl>
-          <FormDescription>
-            Select at least one {label} category
-          </FormDescription>
+          <FormDescription>Select at least one {label}</FormDescription>
           <FormMessage />
         </FormItem>
       )}

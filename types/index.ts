@@ -1,4 +1,4 @@
-import { ChefProfile, Event, EventTimeType, Guest, Unit } from "@prisma/client";
+import { ChefProfile, ChefType, Event, Guest } from "@prisma/client";
 
 export interface EventResponseType extends Event {
   meals: string[];
@@ -41,6 +41,7 @@ export interface UserResponseType {
   name: string;
   email: string;
   role: string;
+  chefType: ChefType | null;
   createdAt: Date | string;
 }
 
@@ -68,6 +69,6 @@ export interface MealPlanDataModel {
   assignedQuantity: number;
   ingredientName: string;
   quantityUsed: number | null;
-  unit: Unit;
+  unit: string;
   chefs: string[];
 }

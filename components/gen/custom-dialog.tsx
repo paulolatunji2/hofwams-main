@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface Props {
   title: string;
@@ -37,7 +38,7 @@ export function CustomDialog({
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        {children}
+        <ScrollArea className="h-96">{children}</ScrollArea>
       </DialogContent>
     </Dialog>
   );

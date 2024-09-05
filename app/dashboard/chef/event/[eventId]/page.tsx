@@ -142,7 +142,7 @@ const EventDetailsPage = async ({
         </div>
       </div>
 
-      <div className="shadow-lg rounded-md my-8 px-4">
+      <div className="shadow-lg rounded-md my-8 p-4">
         <h1 className="text-4xl mb-10 font-bold shadow py-2">Meal Plan</h1>
         {mealPlans?.data && (
           <DataTable
@@ -154,7 +154,7 @@ const EventDetailsPage = async ({
         )}
       </div>
 
-      <div className="shadow-lg rounded-md my-8 px-4">
+      <div className="shadow-lg rounded-md my-8 p-4">
         <h2 className="text-3xl mb-10 font-bold shadow py-2">Guests</h2>
         {eventGuests?.data && (
           <DataTable

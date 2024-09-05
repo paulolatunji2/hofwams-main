@@ -1,21 +1,97 @@
 "use server";
 
-import { UserRole } from "@prisma/client";
+import { Drink, Meal, UserRole } from "@prisma/client";
 import { isAfter } from "date-fns";
 import { revalidatePath } from "next/cache";
 
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import {
+  drinkCategorySchema,
+  DrinkCategoryValues,
   drinkSchema,
   DrinkValues,
   eventSchema,
   EventValues,
+  mealCategorySchema,
+  MealCategoryValues,
   mealSchema,
   MealValues,
+  updateDrinkSchema,
+  UpdateDrinkValues,
+  updateMealSchema,
+  UpdateMealValues,
 } from "@/schema/event";
 import { ResponseType } from "./user-actions";
 import { EventResponseType } from "@/types";
+
+export const createMealCategory = async (
+  value: MealCategoryValues
+): Promise<ResponseType> => {
+  try {
+    const session = await auth();
+    const { id: userId } = session?.user || {};
+
+    if (!userId) {
+      throw new Error("Not authenticated.");
+    }
+
+    const { name } = mealCategorySchema.parse(value);
+
+    const existingMealCategory = await prisma.mealCategory.findFirst({
+      where: {
+        name: {
+          mode: "insensitive",
+          equals: name,
+        },
+      },
+    });
+
+    if (existingMealCategory) {
+      return { error: `${name} category already exists!` };
+    }
+
+    await prisma.mealCategory.create({
+      data: {
+        name,
+      },
+    });
+
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error creating meal category:", error);
+    return {
+      error:
+        "An error occurred while creating the meal category. Please try again later.",
+    };
+  }
+};
+
+export const getMealCategories = async (): Promise<ResponseType<string[]>> => {
+  try {
+    const mealCategories = await prisma.mealCategory.findMany({
+      select: {
+        name: true,
+      },
+    });
+
+    if (mealCategories.length === 0) {
+      return { error: "No meal categories found", data: [] };
+    }
+
+    return {
+      success: true,
+      data: mealCategories.map((category) => category.name),
+    };
+  } catch (error) {
+    return {
+      error:
+        "An error occurred while fetching meal categories. Please try again later.",
+    };
+  }
+};
 
 export const createMeal = async (values: MealValues): Promise<ResponseType> => {
   try {
@@ -26,7 +102,20 @@ export const createMeal = async (values: MealValues): Promise<ResponseType> => {
       throw new Error("Not authenticated.");
     }
 
-    const { name, type } = mealSchema.parse(values);
+    const { name, category } = mealSchema.parse(values);
+
+    const mealCategory = await prisma.mealCategory.findFirst({
+      where: {
+        name: {
+          mode: "insensitive",
+          equals: category,
+        },
+      },
+    });
+
+    if (!mealCategory) {
+      return { error: "Invalid meal category!" };
+    }
 
     const existingMeal = await prisma.meal.findFirst({
       where: {
@@ -44,7 +133,7 @@ export const createMeal = async (values: MealValues): Promise<ResponseType> => {
     await prisma.meal.create({
       data: {
         name,
-        type,
+        mealCategoryName: mealCategory.name,
       },
     });
 
@@ -60,6 +149,154 @@ export const createMeal = async (values: MealValues): Promise<ResponseType> => {
   }
 };
 
+export const getAllMeals = async (): Promise<ResponseType<Meal[]>> => {
+  try {
+    const session = await auth();
+    const { id: userId } = session?.user || {};
+
+    if (!userId) {
+      throw new Error("Not authenticated.");
+    }
+
+    const meals = await prisma.meal.findMany();
+
+    if (meals.length === 0) {
+      return { error: "No meals found", data: [] };
+    }
+
+    return { success: true, data: meals };
+  } catch (error) {
+    console.error("Get all meals error:", error);
+    return {
+      error:
+        "An error occurred while getting all the meals. Please try again later.",
+    };
+  }
+};
+
+export const updateMeal = async (
+  id: string,
+  values: UpdateMealValues
+): Promise<ResponseType> => {
+  try {
+    const session = await auth();
+    const { id: userId, role } = session?.user || {};
+
+    if (!userId || role !== UserRole.CHEF) {
+      throw new Error("Not authenticated.");
+    }
+
+    const { name, category } = updateMealSchema.parse(values);
+
+    const mealCategory = await prisma.mealCategory.findFirst({
+      where: {
+        name: {
+          mode: "insensitive",
+          equals: category,
+        },
+      },
+    });
+
+    if (!mealCategory) {
+      return { error: "Invalid meal category!" };
+    }
+
+    const meal = await prisma.meal.findUnique({
+      where: { id },
+    });
+
+    if (!meal) {
+      return { error: `${name} not found!"` };
+    }
+
+    await prisma.meal.update({
+      where: {
+        id: meal.id,
+      },
+      data: {
+        ...values,
+      },
+    });
+
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    console.log({ error });
+    return {
+      error:
+        "An error occurred while updating the meal. Please try again later.",
+    };
+  }
+};
+
+export const createDrinkCategory = async (
+  value: DrinkCategoryValues
+): Promise<ResponseType> => {
+  try {
+    const session = await auth();
+    const { id: userId } = session?.user || {};
+
+    if (!userId) {
+      throw new Error("Not authenticated.");
+    }
+
+    const { name } = drinkCategorySchema.parse(value);
+
+    const existingDrinkCategory = await prisma.drinkCategory.findFirst({
+      where: {
+        name: {
+          mode: "insensitive",
+          equals: name,
+        },
+      },
+    });
+
+    if (existingDrinkCategory) {
+      return { error: `${name} category already exists!` };
+    }
+
+    await prisma.drinkCategory.create({
+      data: {
+        name,
+      },
+    });
+
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    console.log({ error });
+    return {
+      error:
+        "An error occurred while creating the drink category. Please try again later.",
+    };
+  }
+};
+
+export const getDrinkCategories = async (): Promise<ResponseType<string[]>> => {
+  try {
+    const drinkCategories = await prisma.drinkCategory.findMany({
+      select: {
+        name: true,
+      },
+    });
+
+    if (drinkCategories.length === 0) {
+      return { error: "No drink categories found", data: [] };
+    }
+    return {
+      success: true,
+      data: drinkCategories.map((category) => category.name),
+    };
+  } catch (error) {
+    return {
+      error:
+        "An error occurred while fetching drink categories. Please try again later.",
+    };
+  }
+};
+
 export const createDrink = async (
   values: DrinkValues
 ): Promise<ResponseType> => {
@@ -71,7 +308,20 @@ export const createDrink = async (
       throw new Error("Not authenticated.");
     }
 
-    const { name, type } = drinkSchema.parse(values);
+    const { name, category } = drinkSchema.parse(values);
+
+    const drinksCategory = await prisma.drinkCategory.findFirst({
+      where: {
+        name: {
+          mode: "insensitive",
+          equals: category,
+        },
+      },
+    });
+
+    if (!drinksCategory) {
+      return { error: `${category} is not a valid category` };
+    }
 
     const existingDrink = await prisma.drink.findFirst({
       where: {
@@ -89,7 +339,7 @@ export const createDrink = async (
     await prisma.drink.create({
       data: {
         name,
-        type,
+        drinkCategoryName: drinksCategory.name,
       },
     });
 
@@ -105,28 +355,7 @@ export const createDrink = async (
   }
 };
 
-export const getAllMeals = async (): Promise<ResponseType<MealValues[]>> => {
-  try {
-    const session = await auth();
-    const { id: userId } = session?.user || {};
-
-    if (!userId) {
-      throw new Error("Not authenticated.");
-    }
-
-    const meals = await prisma.meal.findMany();
-
-    return { success: true, data: meals };
-  } catch (error) {
-    console.error("Get all meals error:", error);
-    return {
-      error:
-        "An error occurred while getting all the meals. Please try again later.",
-    };
-  }
-};
-
-export const getAllDrinks = async (): Promise<ResponseType<DrinkValues[]>> => {
+export const getAllDrinks = async (): Promise<ResponseType<Drink[]>> => {
   try {
     const session = await auth();
     const { id: userId } = session?.user || {};
@@ -137,12 +366,72 @@ export const getAllDrinks = async (): Promise<ResponseType<DrinkValues[]>> => {
 
     const drinks = await prisma.drink.findMany();
 
+    if (drinks.length === 0) {
+      return { error: "No drinks found", data: [] };
+    }
+
     return { success: true, data: drinks };
   } catch (error) {
     console.error("Get all meals error:", error);
     return {
       error:
         "An error occurred while getting all the meals. Please try again later.",
+    };
+  }
+};
+
+export const updateDrink = async (
+  id: string,
+  values: UpdateDrinkValues
+): Promise<ResponseType> => {
+  try {
+    const session = await auth();
+    const { id: userId, role } = session?.user || {};
+
+    if (!userId || role !== UserRole.CHEF) {
+      throw new Error("Not authenticated.");
+    }
+
+    const { name, category } = updateDrinkSchema.parse(values);
+
+    const drinkCategory = await prisma.drinkCategory.findFirst({
+      where: {
+        name: {
+          mode: "insensitive",
+          equals: category,
+        },
+      },
+    });
+
+    if (!drinkCategory) {
+      return { error: "Invalid drink category!" };
+    }
+
+    const drink = await prisma.drink.findUnique({
+      where: { id },
+    });
+
+    if (!drink) {
+      return { error: `${name} not found!"` };
+    }
+
+    await prisma.drink.update({
+      where: {
+        id: drink.id,
+      },
+      data: {
+        ...values,
+      },
+    });
+
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    console.log({ error });
+    return {
+      error:
+        "An error occurred while updating the meal. Please try again later.",
     };
   }
 };

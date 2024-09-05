@@ -17,10 +17,7 @@ const InventoryPage = async () => {
   const ingredients = await getAllIngredientInventories();
 
   return (
-    <main
-      className="text-emerald-950 dark:text-emerald-50 overflow-y-auto px-4"
-      style={{ height: "calc(100vh - 200px)" }}
-    >
+    <main className="text-emerald-950 dark:text-emerald-50 px-4">
       <h1 className="text-3xl font-bold mb-10">Ingredients Inventory</h1>
 
       {ingredients.data && (
@@ -28,7 +25,7 @@ const InventoryPage = async () => {
           data={ingredients.data}
           columns={inventoryColumns}
           filterBy="name"
-          facetedFilterBy={["shelfLife"]}
+          facetedFilterBy={[]}
         />
       )}
     </main>
