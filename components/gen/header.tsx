@@ -3,11 +3,11 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { UserButton } from "./user-button";
 import { Button } from "@/components/ui/button";
 import { ThemeToggler } from "./theme-toggler";
-import { useRouter } from "next/navigation";
 import { LeafIcon } from "./icons";
 
 export const Header = () => {
